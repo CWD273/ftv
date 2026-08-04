@@ -42,19 +42,35 @@ export default {
 
     const streamUrl = match[1];
 
-    const parsed = new URL(streamUrl);
-    const token = parsed.searchParams.get("token");
-
-    if (!token) {
-      return new Response("Token not found", {
+    let parsed;
+    try {
+      parsed = new URL(streamUrl);
+    } catch {
+      return new Response("Invalid streamUrl", {
         status: 500
       });
     }
 
+    // Detect origin and base path
+    const origin = parsed.origin;
+    const base = streamUrl.substring(
+      0,
+      streamUrl.lastIndexOf("/") + 1
+    );
+
+    // Preserve the original playlist filename
+    const fileName = parsed.pathname.split("/").pop();
+
+    // Preserve all existing query parameters
+    const query = parsed.search ? parsed.search : "";
+
+    // Build the playlist URL dynamically
+    const playlistUrl = `${base}${fileName}${query}`;
+
     const playlist =
 `#EXTM3U
 #EXT-X-STREAM-INF:AVERAGE-BANDWIDTH=3840000,BANDWIDTH=4810000,RESOLUTION=1280x720,FRAME-RATE=29.970,CODECS="avc1.640028,mp4a.40.2",CLOSED-CAPTIONS=NONE
-https://cdn.bluetier.top/${id}/tracks-v1a1/mono.m3u8?token=${token}`;
+${playlistUrl}`;
 
     return new Response(playlist, {
       headers: {
