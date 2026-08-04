@@ -40,32 +40,29 @@ export default {
       });
     }
 
-    const streamUrl = match[1];
+    // Decode escaped slashes from the JSON string
+const streamUrl = match[1].replace(/\\\//g, "/");
 
-    let parsed;
-    try {
-      parsed = new URL(streamUrl);
-    } catch {
-      return new Response("Invalid streamUrl", {
-        status: 500
-      });
-    }
+let parsed;
+try {
+  parsed = new URL(streamUrl);
+} catch {
+  return new Response("Invalid streamUrl", {
+    status: 500
+  });
+}
 
-    // Detect origin and base path
-    const origin = parsed.origin;
-    const base = streamUrl.substring(
-      0,
-      streamUrl.lastIndexOf("/") + 1
-    );
+// Keep the original query string (?token=..., etc.)
+const query = parsed.search;
 
-    // Preserve the original playlist filename
-    const fileName = parsed.pathname.split("/").pop();
+// Build the base directory (remove the filename)
+const base = streamUrl.substring(
+  0,
+  streamUrl.lastIndexOf("/") + 1
+);
 
-    // Preserve all existing query parameters
-    const query = parsed.search ? parsed.search : "";
-
-    // Build the playlist URL dynamically
-    const playlistUrl = `${base}${fileName}${query}`;
+// Always use tracks-v1a1/mono.m3u8
+const playlistUrl = `${base}tracks-v1a1/mono.m3u8${query}`;
 
     const playlist =
 `#EXTM3U
