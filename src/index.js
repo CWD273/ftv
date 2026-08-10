@@ -16,13 +16,10 @@ export default {
     if (!id) {
       return new Response("Missing id parameter", {
         status: 400,
-        headers: {
-          "Content-Type": "text/plain"
-        }
+        headers: { "Content-Type": "text/plain" }
       });
     }
-
-
+    
     // Fetch the channel page
     const pageResponse = await fetch(
       `https://m.fawanews.news/?channel=${encodeURIComponent(id)}`,
