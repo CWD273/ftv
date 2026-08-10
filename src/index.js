@@ -1,5 +1,15 @@
 export default {
   async fetch(request) {
+    if (request.method === "HEAD") {
+      return new Response(null, {
+        status: 200,
+        headers: {
+          "x-redirect-ready": "true",
+          "Access-Control-Allow-Origin": "*"
+        }
+      });
+    }
+
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
 
@@ -11,6 +21,7 @@ export default {
         }
       });
     }
+
 
     // Fetch the channel page
     const pageResponse = await fetch(
